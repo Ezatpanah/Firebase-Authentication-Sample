@@ -1,6 +1,8 @@
 package com.ezatpanah.firebaseforandroidapp
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -15,10 +17,18 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
     private var mAuth: FirebaseAuth? = null
 
+    val SHARED_PREF ="shared_pref"
+
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+
+
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -46,6 +56,9 @@ class LoginActivity : AppCompatActivity() {
 
     private fun loginUser(txtEmail: String, txtPassword: String) {
 
+        val sharedPreferences: SharedPreferences = this.getSharedPreferences(SHARED_PREF, Context.MODE_PRIVATE)
+        val editor: SharedPreferences.Editor =  sharedPreferences.edit()
+
         mAuth!!.signInWithEmailAndPassword(txtEmail, txtPassword)
             .addOnCompleteListener(this) { task ->
                 Log.d("TAG", "signInWithEmail:onComplete:" + task.isSuccessful)
@@ -56,6 +69,12 @@ class LoginActivity : AppCompatActivity() {
                     intent.flags= Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                     intent.putExtra("user_id",firebaseUser.uid)
                     intent.putExtra("email_id",txtEmail)
+
+                    editor.putString("user_id",firebaseUser.uid)
+                    editor.putString("email_id",txtEmail)
+                    editor.apply()
+                    editor.commit()
+
                     startActivity(intent)
                     finish()
 
